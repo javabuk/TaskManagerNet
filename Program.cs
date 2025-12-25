@@ -14,20 +14,39 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        // Manejo especial para comandos que no necesitan servicios
+        if (args.Length == 0 || args[0] == "--help" || args[0] == "-h" || args[0] == "help")
+        {
+            ShowHelp();
+            
+            // Intentar crear logger sin servicios completos
+            try
+            {
+                var logPath = "taskmanager.log";
+                var helpLogger = new LoggerService(logPath);
+                helpLogger.LogInfo("=== TaskManager iniciado ===");
+                helpLogger.LogCommand(args.Length > 0 ? args[0] : "[sin comando]", Array.Empty<string>());
+                helpLogger.LogInfo("Ayuda mostrada");
+                helpLogger.LogInfo("=== Ejecución completada exitosamente ===");
+            }
+            catch
+            {
+                // Si falla el logging, continuar sin error
+            }
+            
+            return;
+        }
+
+        IServiceProvider? services = null;
+        ILoggerService? logger = null;
+        
         try
         {
-            var services = ConfigureServices();
-            var logger = services.GetRequiredService<ILoggerService>();
+            services = ConfigureServices();
+            logger = services.GetRequiredService<ILoggerService>();
             
             logger.LogInfo("=== TaskManager iniciado ===");
             logger.LogCommand(args.Length > 0 ? args[0] : "[sin comando]", args.Length > 1 ? args.Skip(1).ToArray() : Array.Empty<string>());
-            
-            if (args.Length == 0 || args[0] == "--help" || args[0] == "-h" || args[0] == "help")
-            {
-                ShowHelp();
-                logger.LogInfo("Ayuda mostrada");
-                return;
-            }
 
             var commandHandler = services.GetRequiredService<ICommandHandler>();
             await commandHandler.HandleAsync(args);
@@ -36,8 +55,13 @@ class Program
         }
         catch (Exception ex)
         {
-            var services = ConfigureServices();
-            var logger = services.GetRequiredService<ILoggerService>();
+            // Si no tenemos logger, crearlo ahora
+            if (logger == null)
+            {
+                services ??= ConfigureServices();
+                logger = services.GetRequiredService<ILoggerService>();
+            }
+            
             logger.LogError($"Error fatal: {ex.Message}", ex);
             
             AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
