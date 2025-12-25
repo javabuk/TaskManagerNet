@@ -14,12 +14,18 @@
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <InvariantGlobalization>false</InvariantGlobalization>
     <StartupObject>TaskManager.Program</StartupObject>
+    <!-- Self-contained executable (no .NET runtime dependency) -->
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <!-- Optimizaciones para ejecutable ligero -->
     <TrimMode>link</TrimMode>
     <PublishTrimmed>false</PublishTrimmed>
     <PublishReadyToRun>false</PublishReadyToRun>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfContained>true</IncludeNativeLibrariesForSelfContained>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
