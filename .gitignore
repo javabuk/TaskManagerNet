@@ -1,0 +1,50 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.userprefs
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
+
+# Runtime
+appsettings.*.json
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Test Results
+TestResults/
+.coverage/
+*.trx
+
+# Build artifacts
+publish/
+dist/
+
+# Report files
+reporte_*.md
