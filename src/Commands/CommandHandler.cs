@@ -18,6 +18,7 @@ public class CommandHandler : ICommandHandler
     private readonly ITareaDailyService _tareaDailyService;
     private readonly IImpedimentoDailyService _impedimentoService;
     private readonly IReportService _reportService;
+    private readonly ILoggerService _loggerService;
 
     public CommandHandler(
         IProyectoService proyectoService,
@@ -27,7 +28,8 @@ public class CommandHandler : ICommandHandler
         IRecursoTareaService recursoTareaService,
         ITareaDailyService tareaDailyService,
         IImpedimentoDailyService impedimentoService,
-        IReportService reportService)
+        IReportService reportService,
+        ILoggerService loggerService)
     {
         _proyectoService = proyectoService;
         _recursoService = recursoService;
@@ -37,6 +39,7 @@ public class CommandHandler : ICommandHandler
         _tareaDailyService = tareaDailyService;
         _impedimentoService = impedimentoService;
         _reportService = reportService;
+        _loggerService = loggerService;
     }
 
     public async Task HandleAsync(string[] args)
@@ -73,11 +76,13 @@ public class CommandHandler : ICommandHandler
                     break;
                 default:
                     AnsiConsole.MarkupLine("[red]Comando no reconocido.[/]");
+                    _loggerService.LogWarning($"Comando no reconocido: {command}");
                     break;
             }
         }
         catch (Exception ex)
         {
+            _loggerService.LogError($"Error en comando {command}", ex);
             AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
         }
     }

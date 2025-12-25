@@ -2,10 +2,17 @@
 
 ## 🎯 Si Necesitas Saber...
 
+### "¿Cuáles son las mejoras de la versión 2.0?"
+→ Lee [MEJORAS_V2.md](MEJORAS_V2.md)
+
+**Respuesta rápida:** Ejecutable sin DLLs sueltas, help mejorado, COMANDOS.md, y logging completo
+
+---
+
 ### "¿Cuál es el ejecutable que funciona?"
 → Lee [SOLUCION_RAPIDA.md](SOLUCION_RAPIDA.md)
 
-**Respuesta rápida:** `C:\Distribucion\TaskManagerV2\TaskManager.exe`
+**Respuesta rápida:** `C:\Distribucion\TaskManagerV3\TaskManager.exe`
 
 ---
 
@@ -28,38 +35,44 @@
 
 ---
 
-### "¿Cómo distribuyo esto a otros?"
-→ Lee [DEPLOYMENT.md](DEPLOYMENT.md)
+### "¿Cuáles son TODOS los comandos?"
+→ Lee [COMANDOS.md](COMANDOS.md) - Nueva referencia completa
 
-**Respuesta rápida:** Copia `TaskManager.exe`, `appsettings.json`, `taskmanager.db` y crea un ZIP
-
----
-
-### "¿Qué debo limpiar del proyecto?"
-→ Lee [LIMPIEZA.md](LIMPIEZA.md)
-
-**Respuesta rápida:** Elimina `publish/` y `publish-standalone/`. Mantén solo `publish-singlefile/`
+**Contenido:** 10+ páginas con:
+- Todos los comandos por categoría
+- Parámetros detallados
+- Ejemplos prácticos
+- Workflows reales
 
 ---
 
-### "¿Cuál es el estado actual del proyecto?"
-→ Lee [STATUS_FINAL.md](STATUS_FINAL.md)
+### "¿Cómo funciona el logging?"
+→ Lee [DEBUGGING_LOGS.md](DEBUGGING_LOGS.md) - Nueva guía de debugging
 
-**Respuesta rápida:** ✅ Completamente funcional, listo para producción
-
----
-
-### "Necesito entender todo técnicamente"
-→ Lee [README.md](README.md)
-
-**Contenido:** Requisitos, instalación, schema de BD, todas las características
+**Contenido:**
+- Cómo consultar el log
+- Búsquedas avanzadas
+- Problemas comunes
+- Análisis de logs
 
 ---
 
-### "Quiero usar características avanzadas"
-→ Lee [ADVANCED.md](ADVANCED.md)
+### "¿Dónde está el archivo de log?"
+→ `taskmanager.log` en la misma carpeta del .exe (ubicación configurable)
 
-**Contenido:** Filtrado complejo, scripts de automatización, workflows
+**Ver el log:**
+```powershell
+Get-Content taskmanager.log -Tail 50
+```
+
+---
+
+### "¿Cómo configuro dónde va el log?"
+→ Edita `appsettings.json`
+
+```json
+"LogFilePath": "C:\\MiRuta\\taskmanager.log"
+```
 
 ---
 
@@ -106,19 +119,21 @@ C:\Distribucion\TaskManagerV2\
 
 ## 🔗 Enlaces Directos
 
-| Documento | Propósito | Tiempo |
-|-----------|-----------|--------|
-| [SOLUCION_RAPIDA.md](SOLUCION_RAPIDA.md) | Respuesta al problema | 5 min |
-| [SOLUCION_EJECUTABLE.md](SOLUCION_EJECUTABLE.md) | Cómo se resolvió | 10 min |
-| [STATUS_FINAL.md](STATUS_FINAL.md) | Estado general | 10 min |
-| [GETTING_STARTED.md](GETTING_STARTED.md) | Primeros pasos | 15 min |
-| [QUICKSTART.md](QUICKSTART.md) | Ejemplos rápidos | 10 min |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Distribución | 20 min |
-| [ADVANCED.md](ADVANCED.md) | Características avanzadas | 30 min |
-| [README.md](README.md) | Documentación completa | 45 min |
-| [LIMPIEZA.md](LIMPIEZA.md) | Limpiar proyecto | 10 min |
-| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | Resumen técnico | 20 min |
-| [VALIDATION.md](VALIDATION.md) | Validación | 15 min |
+| Documento | Propósito | Tiempo | Novedad |
+|-----------|-----------|--------|---------|
+| [MEJORAS_V2.md](MEJORAS_V2.md) | Qué cambió en v2.0 | 15 min | ⭐ NUEVO |
+| [SOLUCION_RAPIDA.md](SOLUCION_RAPIDA.md) | Respuesta al problema | 5 min | - |
+| [SOLUCION_EJECUTABLE.md](SOLUCION_EJECUTABLE.md) | Cómo se resolvió | 10 min | - |
+| [COMANDOS.md](COMANDOS.md) | Referencia de comandos | 30 min | ⭐ NUEVO |
+| [DEBUGGING_LOGS.md](DEBUGGING_LOGS.md) | Guía de logging/debugging | 20 min | ⭐ NUEVO |
+| [STATUS_FINAL.md](STATUS_FINAL.md) | Estado general | 10 min | - |
+| [GETTING_STARTED.md](GETTING_STARTED.md) | Primeros pasos | 15 min | - |
+| [QUICKSTART.md](QUICKSTART.md) | Ejemplos rápidos | 10 min | - |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Distribución | 20 min | - |
+| [ADVANCED.md](ADVANCED.md) | Características avanzadas | 30 min | - |
+| [LIMPIEZA.md](LIMPIEZA.md) | Limpiar proyecto | 10 min | - |
+| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | Resumen técnico | 20 min | - |
+| [VALIDATION.md](VALIDATION.md) | Validación | 15 min | - |
 
 ---
 
