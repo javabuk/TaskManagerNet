@@ -19,6 +19,9 @@ public class CommandHandler : ICommandHandler
     private readonly IImpedimentoDailyService _impedimentoService;
     private readonly IReportService _reportService;
     private readonly ILoggerService _loggerService;
+    private readonly IAIService _aiService;
+    private readonly IDataCollectionService _dataCollectionService;
+    private readonly IMarkdownService _markdownService;
 
     public CommandHandler(
         IProyectoService proyectoService,
@@ -29,7 +32,10 @@ public class CommandHandler : ICommandHandler
         ITareaDailyService tareaDailyService,
         IImpedimentoDailyService impedimentoService,
         IReportService reportService,
-        ILoggerService loggerService)
+        ILoggerService loggerService,
+        IAIService aiService,
+        IDataCollectionService dataCollectionService,
+        IMarkdownService markdownService)
     {
         _proyectoService = proyectoService;
         _recursoService = recursoService;
@@ -40,6 +46,9 @@ public class CommandHandler : ICommandHandler
         _impedimentoService = impedimentoService;
         _reportService = reportService;
         _loggerService = loggerService;
+        _aiService = aiService;
+        _dataCollectionService = dataCollectionService;
+        _markdownService = markdownService;
     }
 
     public async Task HandleAsync(string[] args)
@@ -73,6 +82,9 @@ public class CommandHandler : ICommandHandler
                     break;
                 case "reporte":
                     await HandleReporteAsync(args.Skip(1).ToArray());
+                    break;
+                case "sugerencia":
+                    await HandleSugerenciaAsync(args.Skip(1).ToArray());
                     break;
                 default:
                     AnsiConsole.MarkupLine("[red]Comando no reconocido.[/]");
@@ -1031,5 +1043,144 @@ public class CommandHandler : ICommandHandler
         table.AddRow("Activo", tarea.Activo == 1 ? "Sí" : "No");
 
         AnsiConsole.Write(table);
+    }
+
+    private async Task HandleSugerenciaAsync(string[] args)
+    {
+        try
+        {
+            _loggerService.LogInfo("=== Iniciando comando SUGERENCIA ===");
+            
+            // Verificar si se solicita guardar en archivo (parámetro P)
+            var saveToFile = args.Contains("P", StringComparer.OrdinalIgnoreCase);
+
+            // Mostrar estado
+            AnsiConsole.MarkupLine("[cyan]Recopilando tareas activas de todos los proyectos...[/]");
+            _loggerService.LogInfo("Recopilando datos de tareas activas");
+
+            // Recopilar datos
+            var projectData = await _dataCollectionService.CollectActiveTasksAsync();
+
+            if (projectData.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]No hay tareas activas para analizar.[/]");
+                _loggerService.LogInfo("No se encontraron tareas activas");
+                return;
+            }
+
+            AnsiConsole.MarkupLine($"[cyan]Se encontraron {projectData.Count} proyecto(s) con tareas activas.[/]");
+
+            // Construir el prompt para la IA
+            var prompt = ConstructAIPrompt(projectData);
+
+            AnsiConsole.MarkupLine("[cyan]Enviando información a la IA para obtener sugerencias...[/]");
+            _loggerService.LogInfo("Llamando a servicio de IA");
+
+            // Obtener sugerencias de la IA
+            var suggestions = await _aiService.GetSuggestionsAsync(prompt);
+
+            // Mostrar resultado
+            AnsiConsole.MarkupLine("[green]✓ Sugerencias obtenidas exitosamente[/]");
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[bold cyan]=== SUGERENCIAS DEL EQUIPO ===[/]");
+            AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine(suggestions);
+            AnsiConsole.WriteLine();
+
+            // Guardar en archivo si se solicita
+            if (saveToFile)
+            {
+                AnsiConsole.MarkupLine("[cyan]Guardando sugerencias en archivo...[/]");
+                var filePath = await _markdownService.SaveSuggestionsAsync(suggestions);
+                AnsiConsole.MarkupLine($"[green]✓ Sugerencias guardadas en: [bold]{filePath}[/][/]");
+                _loggerService.LogInfo($"Sugerencias guardadas en archivo: {filePath}");
+            }
+
+            _loggerService.LogInfo("=== Comando SUGERENCIA completado exitosamente ===");
+        }
+        catch (InvalidOperationException ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error de configuración: {ex.Message}[/]");
+            _loggerService.LogError($"Error de configuración en comando sugerencia: {ex.Message}");
+        }
+        catch (HttpRequestException ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error de conexión con la IA: {ex.Message}[/]");
+            _loggerService.LogError($"Error de conexión en comando sugerencia: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error: {ex.Message}[/]");
+            _loggerService.LogError($"Error en comando sugerencia: {ex.Message}", ex);
+        }
+    }
+
+    private string ConstructAIPrompt(Dictionary<string, ProjectDataCollection> projectData)
+    {
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("Como experto project manager de un equipo de desarrollo de software, basándote en la siguiente información:");
+        sb.AppendLine();
+
+        foreach (var projectEntry in projectData)
+        {
+            var projectName = projectEntry.Key;
+            var collection = projectEntry.Value;
+
+            sb.AppendLine($"## Proyecto: {projectName}");
+            sb.AppendLine();
+
+            // Tareas generales
+            if (collection.Tareas.Count > 0)
+            {
+                sb.AppendLine("### Tareas Generales:");
+                foreach (var tarea in collection.Tareas)
+                {
+                    sb.AppendLine($"- **{tarea.Titulo}** (Prioridad: {tarea.Prioridad})");
+                    if (!string.IsNullOrEmpty(tarea.Detalle))
+                        sb.AppendLine($"  Detalle: {tarea.Detalle}");
+                    if (!string.IsNullOrEmpty(tarea.FechaFIN))
+                        sb.AppendLine($"  Fecha límite: {tarea.FechaFIN}");
+                }
+                sb.AppendLine();
+            }
+
+            // Tareas diarias
+            if (collection.TareasDaily.Count > 0)
+            {
+                sb.AppendLine("### Tareas Diarias del Equipo:");
+                foreach (var tareaDaily in collection.TareasDaily)
+                {
+                    sb.AppendLine($"- {tareaDaily.Titulo}");
+                    if (!string.IsNullOrEmpty(tareaDaily.FechaFIN))
+                        sb.AppendLine($"  Fecha límite: {tareaDaily.FechaFIN}");
+                }
+                sb.AppendLine();
+            }
+
+            // Impedimentos
+            if (collection.Impedimentos.Count > 0)
+            {
+                sb.AppendLine("### Impedimentos del Equipo:");
+                foreach (var impedimento in collection.Impedimentos)
+                {
+                    sb.AppendLine($"- **{impedimento.Impedimento}**: {impedimento.Explicacion}");
+                    if (!string.IsNullOrEmpty(impedimento.FechaFIN))
+                        sb.AppendLine($"  Fecha límite: {impedimento.FechaFIN}");
+                }
+                sb.AppendLine();
+            }
+        }
+
+        sb.AppendLine("Elabora una serie de consejos, basándote en tu experiencia de años de gestión, agrupados por proyecto, para cada tarea, tareaDaily e ImpedimentDaily.");
+        sb.AppendLine("Incluye también:");
+        sb.AppendLine("1. Recordatorios de buenas prácticas en gestión de proyectos");
+        sb.AppendLine("2. Avisos de fechas importantes:");
+        sb.AppendLine("   - Final de mes: Necesario enviar las horas imputadas al superior");
+        sb.AppendLine("   - Final de año: Completar las evaluaciones por desempeño (EVA)");
+        sb.AppendLine();
+        sb.AppendLine("Por favor, proporciona los consejos de manera clara, estructurada y práctica.");
+
+        return sb.ToString();
     }
 }

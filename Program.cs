@@ -73,15 +73,17 @@ class Program
     {
         var services = new ServiceCollection();
 
-        // Configuration from appsettings.json
+        // Configuration from appsettings.json and appsettings.local.json
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+            .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: false)
             .Build();
 
         var config = configuration.GetSection("AppConfiguration").Get<AppConfiguration>() 
             ?? new AppConfiguration();
         services.AddSingleton(config);
+        services.AddSingleton<IConfiguration>(configuration);
 
         // Database
         services.AddDbContext<TaskManagerDbContext>(options =>
@@ -105,6 +107,11 @@ class Program
         services.AddScoped<ITareaDailyService, TareaDailyService>();
         services.AddScoped<IImpedimentoDailyService, ImpedimentoDailyService>();
         services.AddScoped<IReportService, ReportService>();
+
+        // New AI Services
+        services.AddScoped<IAIService, AIService>();
+        services.AddScoped<IDataCollectionService, DataCollectionService>();
+        services.AddScoped<IMarkdownService, MarkdownService>();
 
         // Logger Service
         services.AddSingleton<ILoggerService>(new LoggerService(config.LogFilePath));
@@ -236,6 +243,16 @@ REPORTES:
     --id-proyecto <número>      Filtrar por proyecto (opcional)
     --nombre-proyecto <texto>   Filtrar por nombre (opcional)
 
+INTELIGENCIA ARTIFICIAL:
+  sugerencia                    Obtener sugerencias de IA para tareas activas
+    P                           Opcional: Guardar sugerencias en archivo Markdown
+  
+  Obtiene sugerencias personalizadas de un experto en project management
+  basadas en tus tareas, tareas diarias e impedimentos activos.
+  Ejemplo:
+    TaskManager.exe sugerencia          # Mostrar sugerencias en pantalla
+    TaskManager.exe sugerencia P        # Guardar en archivo adicional
+
 EJEMPLOS DE USO:
   
   # Crear un proyecto
@@ -256,10 +273,28 @@ EJEMPLOS DE USO:
   # Generar reporte de un proyecto
   TaskManager.exe reporte generar --id-proyecto 1
 
+  # Obtener sugerencias de IA
+  TaskManager.exe sugerencia
+
+  # Obtener sugerencias y guardarlas en un archivo
+  TaskManager.exe sugerencia P
+
+CONFIGURACIÓN DE IA:
+  Para usar el comando 'sugerencia', debes configurar tu API key de Groq:
+  1. Edita el archivo appsettings.local.json (no sube a git)
+  2. Agrega tu API key en AIServices:GroqApiKey
+  3. Ejemplo:
+     {
+       ""AIServices"": {
+         ""GroqApiKey"": ""tu_clave_aqui""
+       }
+     }
+
 NOTAS:
   - Las fechas deben estar en formato dd/MM/yyyy
   - Los valores 0/1 para booleanos: 0=No/Inactivo, 1=Sí/Activo
   - Los textos con espacios deben ir entre comillas
+  - El comando 'sugerencia' requiere configuración de API key
   - Consulta el archivo COMANDOS.md para más información
 
 ";

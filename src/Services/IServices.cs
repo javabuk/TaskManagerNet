@@ -84,3 +84,18 @@ public interface IImpedimentoDailyService
     Task<bool> DeleteImpedimentoDailyAsync(int id);
     Task<IEnumerable<ImpedimentoDaily>> FilterImpedimentosDaily(int? idImpedimentoDaily, int? activo, int? idProyecto, string? impedimento, int? idRecurso);
 }
+public interface IAIService
+{
+    Task<string> GetSuggestionsAsync(string prompt);
+}
+
+public interface IDataCollectionService
+{
+    Task<Dictionary<string, ProjectDataCollection>> CollectActiveTasksAsync();
+}
+
+public interface IMarkdownService
+{
+    Task<string> SaveSuggestionsAsync(string suggestions);
+    string GetSuggestionsFilePath();
+}

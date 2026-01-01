@@ -11,7 +11,8 @@
 7. [Tareas Diarias](#tareas-diarias)
 8. [Impedimentos Diarios](#impedimentos-diarios)
 9. [Reportes](#reportes)
-10. [Ejemplos Prácticos](#ejemplos-prácticos)
+10. [Inteligencia Artificial](#inteligencia-artificial)
+11. [Ejemplos Prácticos](#ejemplos-prácticos)
 
 ---
 
@@ -413,7 +414,64 @@ TaskManager.exe reporte generar --fecha "25/12/2025" --id-proyecto 1
 
 ---
 
-## Ejemplos Prácticos
+## Inteligencia Artificial
+
+### Obtener Sugerencias de IA
+
+```bash
+TaskManager.exe sugerencia [P]
+```
+
+Obtiene sugerencias personalizadas de un experto en project management basadas en tus tareas activas, tareas diarias e impedimentos. Las sugerencias son generadas por Groq AI usando análisis inteligente de tus datos.
+
+**Parámetros:**
+- Sin parámetros: Muestra las sugerencias en pantalla
+- `P`: Parámetro opcional para guardar las sugerencias en un archivo Markdown adicional
+
+**Ejemplos:**
+```bash
+# Mostrar sugerencias en pantalla
+TaskManager.exe sugerencia
+
+# Mostrar sugerencias Y guardar en archivo Markdown
+TaskManager.exe sugerencia P
+```
+
+**Resultado:**
+- Sugerencias coloridas en la consola con recomendaciones de PM
+- Análisis agrupado por proyecto
+- Información sobre tareas, dailies e impedimentos activos
+- Si se usa `P`: Archivo `yyyyMMddHHmmss_Sugerencias.md` con el contenido
+
+**Configuración Requerida:**
+El comando requiere una API key válida de Groq. Configura esto en `appsettings.local.json`:
+
+```json
+{
+  "AIServices": {
+    "GroqApiKey": "tu_api_key_aqui"
+  }
+}
+```
+
+Obtén tu API key en https://console.groq.com
+
+**Ejemplo de Salida:**
+```
+✨ Recopilando tareas activas de todos los proyectos...
+✨ Se encontraron 2 proyecto(s) con tareas activas.
+✨ Enviando información a la IA para obtener sugerencias...
+
+📋 Sugerencias del Experto en Project Management:
+
+**Proyecto: Backend API**
+- Prioriza las tareas de alta prioridad identificadas
+- Considera distribuir mejor la carga entre el equipo
+- Los impedimentos necesitan resolución urgente
+...
+```
+
+---
 
 ### Ejemplo 1: Crear y Gestionar un Proyecto Completo
 

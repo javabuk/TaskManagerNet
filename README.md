@@ -10,6 +10,7 @@ Una aplicación de consola .NET 7 para la gestión integral de proyectos, tareas
 - ✅ Tareas diarias (Daily)
 - ✅ Registro de impedimentos
 - ✅ Generación de reportes en Markdown
+- ✅ **Sugerencias inteligentes con IA (Groq API)**
 - ✅ Filtros avanzados
 - ✅ Interfaz de línea de comandos intuitiva
 
@@ -186,6 +187,37 @@ dotnet run -- reporte generar --id-proyecto 1
 ```bash
 dotnet run -- reporte generar --nombre-proyecto "Mi Proyecto"
 ```
+
+### Sugerencias Inteligentes con IA
+
+**Obtener sugerencias de project management basadas en IA:**
+```bash
+dotnet run -- sugerencia
+```
+
+**Obtener sugerencias y guardar en archivo Markdown:**
+```bash
+dotnet run -- sugerencia P
+```
+
+El comando `sugerencia` analiza automáticamente:
+- Todas tus tareas activas
+- Tareas diarias del equipo
+- Impedimentos identificados
+- Prioridades y estado del proyecto
+
+Luego, Groq AI proporciona sugerencias personalizadas de un experto en project management.
+
+**Requisito:** Debes configurar tu API key de Groq en `appsettings.local.json`:
+```json
+{
+  "AIServices": {
+    "GroqApiKey": "tu_api_key_aqui"
+  }
+}
+```
+
+Obtén tu API key gratis en https://console.groq.com
 
 ## Estructura de Base de Datos
 
