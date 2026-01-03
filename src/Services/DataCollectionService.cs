@@ -36,7 +36,7 @@ public class DataCollectionService : IDataCollectionService
         _loggerService = loggerService;
     }
 
-    public async Task<Dictionary<string, ProjectDataCollection>> CollectActiveTasksAsync()
+    public async Task<Dictionary<string, ProjectDataCollection>> CollectActiveTasksAsync(int? idProyecto = null)
     {
         var today = DateTime.Now.ToString("yyyy-MM-dd");
         var result = new Dictionary<string, ProjectDataCollection>();
@@ -45,11 +45,22 @@ public class DataCollectionService : IDataCollectionService
         {
             _loggerService.LogInfo("[DataCollectionService] Iniciando recopilación de datos activos");
 
-            // Obtener todos los proyectos
-            var allProjects = await _proyectoService.GetAllProyectosAsync();
-            _loggerService.LogInfo($"[DataCollectionService] Total de proyectos encontrados: {allProjects.Count()}");
+            // Obtener proyectos a procesar
+            IEnumerable<Proyecto> projectsToProcess;
+            if (idProyecto.HasValue)
+            {
+                var proyecto = await _proyectoService.GetProyectoByIdAsync(idProyecto.Value);
+                projectsToProcess = proyecto != null ? new[] { proyecto } : new Proyecto[] { };
+                _loggerService.LogInfo($"[DataCollectionService] Filtrando por proyecto ID: {idProyecto.Value}");
+            }
+            else
+            {
+                projectsToProcess = await _proyectoService.GetAllProyectosAsync();
+            }
+            
+            _loggerService.LogInfo($"[DataCollectionService] Total de proyectos a procesar: {projectsToProcess.Count()}");
 
-            foreach (var proyecto in allProjects)
+            foreach (var proyecto in projectsToProcess)
             {
                 if (proyecto == null) continue;
 

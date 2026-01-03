@@ -1,5 +1,6 @@
 using Spectre.Console;
 using TaskManager.Services;
+using TaskManager.Configuration;
 
 namespace TaskManager.Commands;
 
@@ -22,6 +23,7 @@ public class CommandHandler : ICommandHandler
     private readonly IAIService _aiService;
     private readonly IDataCollectionService _dataCollectionService;
     private readonly IMarkdownService _markdownService;
+    private readonly AppConfiguration _appConfiguration;
 
     public CommandHandler(
         IProyectoService proyectoService,
@@ -35,7 +37,8 @@ public class CommandHandler : ICommandHandler
         ILoggerService loggerService,
         IAIService aiService,
         IDataCollectionService dataCollectionService,
-        IMarkdownService markdownService)
+        IMarkdownService markdownService,
+        AppConfiguration appConfiguration)
     {
         _proyectoService = proyectoService;
         _recursoService = recursoService;
@@ -49,6 +52,7 @@ public class CommandHandler : ICommandHandler
         _aiService = aiService;
         _dataCollectionService = dataCollectionService;
         _markdownService = markdownService;
+        _appConfiguration = appConfiguration;
     }
 
     public async Task HandleAsync(string[] args)
@@ -1054,12 +1058,19 @@ public class CommandHandler : ICommandHandler
             // Verificar si se solicita guardar en archivo (parámetro P)
             var saveToFile = args.Contains("P", StringComparer.OrdinalIgnoreCase);
 
+            // Parsear id-proyecto si se proporciona
+            var idProyecto = int.TryParse(GetArgumentValue(args, "--id-proyecto"), out var p) ? (int?)p : null;
+
             // Mostrar estado
-            AnsiConsole.MarkupLine("[cyan]Recopilando tareas activas de todos los proyectos...[/]");
+            if (idProyecto.HasValue)
+                AnsiConsole.MarkupLine($"[cyan]Recopilando tareas activas del proyecto {idProyecto.Value}...[/]");
+            else
+                AnsiConsole.MarkupLine("[cyan]Recopilando tareas activas de todos los proyectos...[/]");
+            
             _loggerService.LogInfo("Recopilando datos de tareas activas");
 
             // Recopilar datos
-            var projectData = await _dataCollectionService.CollectActiveTasksAsync();
+            var projectData = await _dataCollectionService.CollectActiveTasksAsync(idProyecto);
 
             if (projectData.Count == 0)
             {
@@ -1172,6 +1183,42 @@ public class CommandHandler : ICommandHandler
             }
         }
 
+        // Leer indicaciones desde archivo
+        string indicaciones = LeerIndicaciones();
+        sb.Append(indicaciones);
+
+        return sb.ToString();
+    }
+
+    private string LeerIndicaciones()
+    {
+        try
+        {
+            var indicacionesPath = _appConfiguration.IndicacionesPath;
+            var fullPath = Path.IsPathRooted(indicacionesPath) 
+                ? indicacionesPath 
+                : Path.Combine(AppContext.BaseDirectory, indicacionesPath);
+            
+            if (File.Exists(fullPath))
+            {
+                return File.ReadAllText(fullPath);
+            }
+            else
+            {
+                _loggerService.LogWarning($"Archivo Indicaciones.md no encontrado en: {fullPath}. Usando indicaciones por defecto.");
+                return GetDefaultIndicaciones();
+            }
+        }
+        catch (Exception ex)
+        {
+            _loggerService.LogWarning($"Error al leer Indicaciones.md: {ex.Message}. Usando indicaciones por defecto.");
+            return GetDefaultIndicaciones();
+        }
+    }
+
+    private string GetDefaultIndicaciones()
+    {
+        var sb = new System.Text.StringBuilder();
         sb.AppendLine("Elabora una serie de consejos, basándote en tu experiencia de años de gestión, agrupados por proyecto, para cada tarea, tareaDaily e ImpedimentDaily.");
         sb.AppendLine("Incluye también:");
         sb.AppendLine("1. Recordatorios de buenas prácticas en gestión de proyectos");
@@ -1180,7 +1227,6 @@ public class CommandHandler : ICommandHandler
         sb.AppendLine("   - Final de año: Completar las evaluaciones por desempeño (EVA)");
         sb.AppendLine();
         sb.AppendLine("Por favor, proporciona los consejos de manera clara, estructurada y práctica.");
-
         return sb.ToString();
     }
 }

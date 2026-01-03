@@ -91,7 +91,7 @@ public interface IAIService
 
 public interface IDataCollectionService
 {
-    Task<Dictionary<string, ProjectDataCollection>> CollectActiveTasksAsync();
+    Task<Dictionary<string, ProjectDataCollection>> CollectActiveTasksAsync(int? idProyecto = null);
 }
 
 public interface IMarkdownService
