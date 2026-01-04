@@ -190,9 +190,14 @@ dotnet run -- reporte generar --nombre-proyecto "Mi Proyecto"
 
 ### Sugerencias Inteligentes con IA
 
-**Obtener sugerencias de project management basadas en IA:**
+**Obtener sugerencias de project management basadas en IA (usando el modelo por defecto):**
 ```bash
 dotnet run -- sugerencia
+```
+
+**Obtener sugerencias usando un modelo IA específico:**
+```bash
+dotnet run -- sugerencia --modelo "moonshotai/kimi-k2-instruct-0905"
 ```
 
 **Obtener sugerencias y guardar en archivo Markdown:**
@@ -200,24 +205,52 @@ dotnet run -- sugerencia
 dotnet run -- sugerencia P
 ```
 
+**Obtener sugerencias de un proyecto específico con un modelo personalizado:**
+```bash
+dotnet run -- sugerencia --id-proyecto 1 --modelo "openai/gpt-oss-120b" P
+```
+
 El comando `sugerencia` analiza automáticamente:
-- Todas tus tareas activas
+- Todas tus tareas activas (o las de un proyecto específico)
 - Tareas diarias del equipo
 - Impedimentos identificados
 - Prioridades y estado del proyecto
 
-Luego, Groq AI proporciona sugerencias personalizadas de un experto en project management.
+Luego, la IA configurada proporciona sugerencias personalizadas de un experto en project management.
 
-**Requisito:** Debes configurar tu API key de Groq en `appsettings.local.json`:
+#### Modelos IA Disponibles
+
+El proyecto está configurado con varios modelos IA que puedes seleccionar:
+
+- `moonshotai/kimi-k2-instruct-0905` (Predeterminado) - Modelo balanceado con buena capacidad de razonamiento
+- `openai/gpt-oss-120b` - Modelo muy potente con mayor capacidad de tokens
+- `qwen/qwen3-32b` - Modelo Qwen con excelente manejo de contexto
+- `groq/compound` - Modelo con herramientas integradas (web_search, code_interpreter, visit_website)
+- `llama-3.1-8b-instant` - Modelo ligero y rápido
+- `meta-llama/llama-guard-4-12b` - Modelo especializado en seguridad
+
+**Requisito:** Configura las API keys en `appsettings.local.json`:
 ```json
 {
-  "AIServices": {
-    "GroqApiKey": "tu_api_key_aqui"
-  }
+  "AIServiceProviders": [
+    {
+      "Id": "kimi-default",
+      "Model": "moonshotai/kimi-k2-instruct-0905",
+      "ApiKey": "tu_api_key_aqui"
+    },
+    {
+      "Id": "gpt-oss",
+      "Model": "openai/gpt-oss-120b",
+      "ApiKey": "tu_api_key_aqui"
+    }
+  ],
+  "DefaultAIModel": "moonshotai/kimi-k2-instruct-0905"
 }
 ```
 
-Obtén tu API key gratis en https://console.groq.com
+Obtén tus API keys en:
+- Groq: https://console.groq.com
+- Otros proveedores: Consulta la documentación de cada proveedor
 
 ## Estructura de Base de Datos
 

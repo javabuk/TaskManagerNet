@@ -1058,6 +1058,9 @@ public class CommandHandler : ICommandHandler
             // Verificar si se solicita guardar en archivo (parámetro P)
             var saveToFile = args.Contains("P", StringComparer.OrdinalIgnoreCase);
 
+            // Obtener modelo IA a usar (por defecto: moonshotai/kimi-k2-instruct-0905)
+            var aiModel = GetArgumentValue(args, "--modelo") ?? "moonshotai/kimi-k2-instruct-0905";
+
             // Parsear id-proyecto si se proporciona
             var idProyecto = int.TryParse(GetArgumentValue(args, "--id-proyecto"), out var p) ? (int?)p : null;
 
@@ -1067,7 +1070,8 @@ public class CommandHandler : ICommandHandler
             else
                 AnsiConsole.MarkupLine("[cyan]Recopilando tareas activas de todos los proyectos...[/]");
             
-            _loggerService.LogInfo("Recopilando datos de tareas activas");
+            AnsiConsole.MarkupLine($"[cyan]Modelo IA seleccionado: {aiModel}[/]");
+            _loggerService.LogInfo($"Recopilando datos de tareas activas. Modelo: {aiModel}");
 
             // Recopilar datos
             var projectData = await _dataCollectionService.CollectActiveTasksAsync(idProyecto);
@@ -1087,8 +1091,8 @@ public class CommandHandler : ICommandHandler
             AnsiConsole.MarkupLine("[cyan]Enviando información a la IA para obtener sugerencias...[/]");
             _loggerService.LogInfo("Llamando a servicio de IA");
 
-            // Obtener sugerencias de la IA
-            var suggestions = await _aiService.GetSuggestionsAsync(prompt);
+            // Obtener sugerencias de la IA con el modelo especificado
+            var suggestions = await _aiService.GetSuggestionsAsync(prompt, aiModel);
 
             // Mostrar resultado
             AnsiConsole.MarkupLine("[green]✓ Sugerencias obtenidas exitosamente[/]");

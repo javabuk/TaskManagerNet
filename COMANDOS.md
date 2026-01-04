@@ -419,32 +419,44 @@ TaskManager.exe reporte generar --fecha "25/12/2025" --id-proyecto 1
 ### Obtener Sugerencias de IA
 
 ```bash
-TaskManager.exe sugerencia [P]
+TaskManager.exe sugerencia [--modelo "nombre-modelo"] [--id-proyecto id] [P]
 ```
 
-Obtiene sugerencias personalizadas de un experto en project management basadas en tus tareas activas, tareas diarias e impedimentos. Las sugerencias son generadas por Groq AI usando análisis inteligente de tus datos.
+Obtiene sugerencias personalizadas de un experto en project management basadas en tus tareas activas, tareas diarias e impedimentos. Soporta múltiples modelos IA configurables.
 
 **Parámetros:**
-- Sin parámetros: Muestra las sugerencias en pantalla
-- `P`: Parámetro opcional para guardar las sugerencias en un archivo Markdown adicional
+- `--modelo "nombre"` (Opcional): Selecciona qué modelo IA usar. Por defecto: `moonshotai/kimi-k2-instruct-0905`
+  - Modelos disponibles: `qwen/qwen3-32b`, `groq/compound`, `llama-3.1-8b-instant`, `meta-llama/llama-guard-4-12b`, `openai/gpt-oss-120b`, `moonshotai/kimi-k2-instruct-0905`
+- `--id-proyecto id` (Opcional): Analiza solo un proyecto específico. Si no se especifica, analiza todos
+- `P` (Opcional): Guarda las sugerencias en un archivo Markdown adicional
 
 **Ejemplos:**
 ```bash
-# Mostrar sugerencias en pantalla
+# Mostrar sugerencias con modelo por defecto
 TaskManager.exe sugerencia
 
-# Mostrar sugerencias Y guardar en archivo Markdown
-TaskManager.exe sugerencia P
+# Mostrar sugerencias con modelo específico
+TaskManager.exe sugerencia --modelo "openai/gpt-oss-120b"
+
+# Mostrar sugerencias de un proyecto específico
+TaskManager.exe sugerencia --id-proyecto 1
+
+# Guardar sugerencias en archivo con modelo personalizado
+TaskManager.exe sugerencia --modelo "qwen/qwen3-32b" P
+
+# Análisis completo: proyecto específico + modelo + archivo
+TaskManager.exe sugerencia --id-proyecto 1 --modelo "openai/gpt-oss-120b" P
 ```
 
 **Resultado:**
 - Sugerencias coloridas en la consola con recomendaciones de PM
 - Análisis agrupado por proyecto
 - Información sobre tareas, dailies e impedimentos activos
+- Modelo IA utilizado mostrado en pantalla
 - Si se usa `P`: Archivo `yyyyMMddHHmmss_Sugerencias.md` con el contenido
 
 **Configuración Requerida:**
-El comando requiere una API key válida de Groq. Configura esto en `appsettings.local.json`:
+El comando requiere una API key válida. Configura los modelos en `appsettings.local.json`:
 
 ```json
 {

@@ -47,6 +47,47 @@ dotnet run -- reporte generar
 cat reporte_2025-12-25.md
 ```
 
+## ⚙️ Configuración de Modelos IA (Importante)
+
+Para usar las sugerencias inteligentes, debes configurar los modelos IA en `appsettings.local.json`:
+
+```json
+{
+  "AIServiceProviders": [
+    {
+      "Id": "kimi-default",
+      "Model": "moonshotai/kimi-k2-instruct-0905",
+      "ApiUrl": "https://api.groq.com/openai/v1/chat/completions",
+      "ApiKey": "tu_api_key_aqui",
+      "Temperature": 0.6,
+      "MaxCompletionTokens": 4096,
+      "TopP": 1.0
+    }
+  ],
+  "DefaultAIModel": "moonshotai/kimi-k2-instruct-0905"
+}
+```
+
+### Obtener API Keys
+
+1. Accede a https://console.groq.com
+2. Crea una cuenta o inicia sesión
+3. Ve a la sección de API keys
+4. Copia tu API key
+5. Pégala en `appsettings.local.json`
+
+### Probar las Sugerencias
+
+Una vez configurado, ejecuta:
+```bash
+dotnet run -- sugerencia
+```
+
+O con un modelo específico:
+```bash
+dotnet run -- sugerencia --modelo "openai/gpt-oss-120b"
+```
+
 ## 🧪 Ejecutar Tests
 ```bash
 dotnet test

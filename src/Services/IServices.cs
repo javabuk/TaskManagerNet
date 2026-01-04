@@ -86,7 +86,13 @@ public interface IImpedimentoDailyService
 }
 public interface IAIService
 {
-    Task<string> GetSuggestionsAsync(string prompt);
+    /// <summary>
+    /// Obtiene sugerencias de IA usando el modelo especificado
+    /// </summary>
+    /// <param name="prompt">El prompt a enviar a la IA</param>
+    /// <param name="modelName">Nombre del modelo a usar (ej: "moonshotai/kimi-k2-instruct-0905"). Si es null, usa el modelo por defecto</param>
+    /// <returns>Respuesta de la IA</returns>
+    Task<string> GetSuggestionsAsync(string prompt, string? modelName = null);
 }
 
 public interface IDataCollectionService
